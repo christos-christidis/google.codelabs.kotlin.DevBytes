@@ -100,10 +100,6 @@
                 tools:ignore="ContentDescription"
                 tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
-            <!-- SOS: a different, MORE complicated way to add a clickListener to the list item!
-            Compare this to the previous app). Here we bind a VideoClick class to the layout and we
-            add an "overlay" view all over the layout so any clicks will call the clicklistener passing
-            in the video of the current item (which is also bound above). -->
             <View
                 android:id="@+id/clickableOverlay"
                 android:layout_width="0dp"

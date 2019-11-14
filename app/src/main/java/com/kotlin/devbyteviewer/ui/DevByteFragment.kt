@@ -35,11 +35,9 @@ class DevByteFragment : Fragment() {
                 inflater, R.layout.fragment_dev_byte, container, false)
 
         binding.viewModel = viewModel
-        // SOS: see below for why we use viewLifecycleOwner here instead of this
         binding.lifecycleOwner = viewLifecycleOwner
 
         devByteAdapter = DevByteAdapter(VideoClick {
-            // SOS: great idiom!
             val packageManager = context?.packageManager ?: return@VideoClick
 
             var intent = Intent(Intent.ACTION_VIEW, it.youtubeUri)
@@ -55,10 +53,6 @@ class DevByteFragment : Fragment() {
             adapter = devByteAdapter
         }
 
-        // SOS: The reason we use viewLifecycleOwner instead of 'this' here and above: if the fragment
-        // is retained, its lifecycle does not end. Its view is destroyed and recreated, thus calling
-        // onCreateView again. So we'd keep adding the same Observer again and again! There are other
-        // solutions to this, but this is the cleanest
         viewModel.eventNetworkError.observe(viewLifecycleOwner, Observer { isNetworkError ->
             if (isNetworkError) {
                 onNetworkError()

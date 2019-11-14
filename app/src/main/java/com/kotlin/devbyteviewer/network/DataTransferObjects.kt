@@ -1,5 +1,6 @@
 package com.kotlin.devbyteviewer.network
 
+import com.kotlin.devbyteviewer.database.DatabaseVideo
 import com.kotlin.devbyteviewer.domain.DevByteVideo
 import com.squareup.moshi.JsonClass
 
@@ -21,6 +22,17 @@ data class NetworkVideoContainer(val videos: List<NetworkVideo>)
 fun NetworkVideoContainer.asDomainModel(): List<DevByteVideo> {
     return videos.map {
         DevByteVideo(
+                title = it.title,
+                description = it.description,
+                url = it.url,
+                updated = it.updated,
+                thumbnail = it.thumbnail)
+    }
+}
+
+fun NetworkVideoContainer.asDatabaseModel(): List<DatabaseVideo> {
+    return videos.map {
+        DatabaseVideo(
                 title = it.title,
                 description = it.description,
                 url = it.url,

@@ -6,23 +6,23 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.kotlin.devbyteviewer.database.VideosDatabase
 import com.kotlin.devbyteviewer.domain.DevByteVideo
 import com.kotlin.devbyteviewer.network.DevByteNetwork
 import com.kotlin.devbyteviewer.network.asDomainModel
+import com.kotlin.devbyteviewer.repository.VideosRepository
 import kotlinx.coroutines.*
 import java.io.IOException
 
 class DevByteViewModel(application: Application) : AndroidViewModel(application) {
 
-    // SOS: a plain Job fails when one of its children fails and the rest of the children are cancelled.
-    // w SupervisorJob, a child failure doesn't affect the other children nor the parent.
+    private val videosRepository = VideosRepository(VideosDatabase.getDatabase(application))
+
+    val playlist = videosRepository.videos
+
     private val viewModelJob = SupervisorJob()
 
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-
-    private val _playlist = MutableLiveData<List<DevByteVideo>>()
-    val playlist: LiveData<List<DevByteVideo>>
-        get() = _playlist
 
     private var _eventNetworkError = MutableLiveData<Boolean>(false)
     val eventNetworkError: LiveData<Boolean>
@@ -33,19 +33,20 @@ class DevByteViewModel(application: Application) : AndroidViewModel(application)
         get() = _isNetworkErrorShown
 
     init {
-        refreshDataFromNetwork()
+        refreshDataFromRepository()
     }
 
-    private fun refreshDataFromNetwork() = viewModelScope.launch {
+    private fun refreshDataFromRepository() {
+        viewModelScope.launch {
+            try {
+                videosRepository.refreshVideos()
+                _eventNetworkError.value = false
+                _isNetworkErrorShown.value = false
 
-        try {
-             val playlist = DevByteNetwork.devbyteService.getPlaylistAsync().await()
-            _playlist.postValue(playlist.asDomainModel())
-            _eventNetworkError.value = false
-            _isNetworkErrorShown.value = false
-
-        } catch (networkError: IOException) {
-            _eventNetworkError.value = true
+            } catch (networkError: IOException) {
+                if (playlist.value!!.isEmpty())
+                    _eventNetworkError.value = true
+            }
         }
     }
 
