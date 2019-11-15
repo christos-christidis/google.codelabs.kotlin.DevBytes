@@ -14,7 +14,6 @@ interface VideoDao {
     fun insertAll(videos: List<DatabaseVideo>)
 }
 
-// SOS: a THIRD way to initialize the db instance. Have mercy
 private lateinit var INSTANCE: VideosDatabase
 
 @Database(entities = [DatabaseVideo::class], version = 1)

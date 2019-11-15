@@ -13,7 +13,6 @@ import timber.log.Timber
 
 class VideosRepository(private val database: VideosDatabase) {
 
-    // SOS: this is the right (only?) way to get LiveData of a different type from the original LiveData
     val videos: LiveData<List<DevByteVideo>> = Transformations.map(database.videoDao.getVideos()) {
         it.asDomainModel()
     }
